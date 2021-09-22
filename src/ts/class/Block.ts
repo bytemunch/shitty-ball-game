@@ -16,7 +16,7 @@ export class Block {
         this.width = 30 * o.sizeScale;
         this.height = 30 * o.sizeScale;
 
-        this.health = o.health || 1;
+        this.health = o.health;
 
         this.collisionSides = {
             left: true,

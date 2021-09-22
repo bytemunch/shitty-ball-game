@@ -98,12 +98,31 @@ export class BallGame {
             }),
         ]
 
-        for (let i = 0; i < 10; i++) {
-            for (let j = 0; j < 10; j++) {
-                console.log(i,j);
-                this.blocks.push(new Block({ x: bg(i), y: bg(j), health: Number(`${i}${j}`) }))
+        // pull test level from image
+        let ocnv = document.createElement('canvas');
+        let octx = ocnv.getContext('2d');
+
+        let oimg = new Image();
+
+        oimg.onload = () => {
+            octx.drawImage(oimg, 0, 0);
+            let imgData = octx.getImageData(0, 0, 10, 10);
+
+            console.log(imgData);
+            // Loading from image
+            for (let i = 0; i < 10; i++) {
+                for (let j = 0; j < 10; j++) {
+                    console.log(imgData.data[10 * i + j]);
+
+                    let channelMix = imgData.data[(10 * j * 4 + i * 4)] + imgData.data[(10 * j * 4 + i * 4) + 1] + imgData.data[(10 * j * 4 + i * 4) + 2];
+
+                    let bh = Math.ceil(100 * (channelMix / (255 * 3)));
+                    this.blocks.push(new Block({ x: bg(i), y: bg(j), health: bh }));
+                }
             }
         }
+
+        oimg.src = './img/level-test.png';
 
         // add interaction handlers
         this.targetDiv.addEventListener('touchstart', e => {
@@ -149,7 +168,7 @@ export class BallGame {
 
                 this.targetDiv.removeEventListener('mousemove', moveFn);
                 this.targetDiv.removeEventListener('mouseup', upFn);
-                
+
                 this.ballGun.fire(this.balls, 100);
             }
 
