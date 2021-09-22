@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ball Game</title>
+    <script type="module" src="./js/main.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            width: 100vw;
+            height: 100vh;
+            position: absolute;
+            background: url('./img/wall.png');
+        }
+        
+        #ball-game {
+            max-height: 100%;
+            aspect-ratio: 9/16;
+            margin: 0 auto;
+            background-color: black;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #ball-game canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        
+        #game-canvas {
+            z-index: 100;
+        }
+        
+        #interface-canvas {
+            z-index: 200;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="ball-game">
+        <h1>Ball Game Goes Here</h1>
+    </div>
+</body>
+
+</html>
