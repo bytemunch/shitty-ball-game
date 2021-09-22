@@ -27,6 +27,7 @@ export class BallGun {
     }
 
     setTarget(x, y) {
+        if (this.firing) return;
         this.target.setXY(rs2(x) - this.pos.x, rs2(y) - this.pos.y);
         this.target.setMag(this.size / 2);
         this.target.setAngle(this.fireAngle);
