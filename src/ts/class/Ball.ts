@@ -9,14 +9,14 @@ export class Ball {
 
     size: number;
 
-    health: number;
+    health: bigint;
 
     constructor(o: BallOptions) {
         this.pos = new Vector({ x: o.x, y: o.y });
         this.vel = new Vector({ a: o.a, m: 5 });
         this.size = 5;
 
-        this.health = Infinity;
+        this.health = 999999999999999n;
     }
 
     update() {

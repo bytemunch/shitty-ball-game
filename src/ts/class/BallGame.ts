@@ -10,6 +10,7 @@ export class BallGame {
     walls: Wall[];
     balls: Ball[];
     blocks: Block[];
+    interfaces: any[];
 
     // Main canvas
     cnv: HTMLCanvasElement;
@@ -23,10 +24,10 @@ export class BallGame {
     targetDiv: HTMLDivElement;
     targetBB: DOMRect;
 
-    naturalGameBB: { x: number, y: number, width: number, height: number };
+    naturalGameBB: { x: number, y: number, width: number, height: number, interfaceTop: number };
 
-    score: number;
-    ballBank: number;
+    score: bigint;
+    ballBank: bigint;
 
     ballGun: BallGun;
 
@@ -34,11 +35,13 @@ export class BallGame {
 
     constructor() {
         // Setup natural sizes
+        // 64px for interface, less margins makes 48px touch targets
         this.naturalGameBB = {
             x: 0,
             y: 0,
             width: 320,
-            height: 568
+            height: 568,
+            interfaceTop: 504
         }
         // Grab targetdiv
         this.targetDiv = document.querySelector('#ball-game');
@@ -67,14 +70,20 @@ export class BallGame {
         })
 
         // Setup initial variables
-        this.score = 0;
+        this.score = 0n;
+        this.ballBank = 500n;
         this.balls = [];
         this.walls = [];
         this.blocks = [];
 
+        this.interfaces = [
+
+        ];
+
         // Setup initial objects
         this.ballGun = new BallGun;
 
+        // Walls & ceiling
         const wallWidth = 10;
 
         this.walls = [
@@ -116,7 +125,7 @@ export class BallGame {
 
                     let channelMix = imgData.data[(10 * j * 4 + i * 4)] + imgData.data[(10 * j * 4 + i * 4) + 1] + imgData.data[(10 * j * 4 + i * 4) + 2];
 
-                    let bh = Math.ceil(100 * (channelMix / (255 * 3)));
+                    let bh = BigInt(Math.ceil(100 * (channelMix / (255 * 3))));
                     this.blocks.push(new Block({ x: bg(i), y: bg(j), health: bh }));
                 }
             }

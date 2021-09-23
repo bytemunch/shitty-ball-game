@@ -1,4 +1,4 @@
-import { game, rs } from "../main.js";
+import { game, nc, rs } from "../main.js";
 import { Vector } from "./Vector.js";
 
 export class Block {
@@ -6,7 +6,7 @@ export class Block {
     width: number;
     height: number;
 
-    health: number;
+    health: bigint;
 
     collisionSides;
 
@@ -16,7 +16,7 @@ export class Block {
         this.width = 30 * o.sizeScale;
         this.height = 30 * o.sizeScale;
 
-        this.health = o.health;
+        this.health = typeof o.health == 'bigint' ? o.health : BigInt(o.health);
 
         this.collisionSides = {
             left: true,
@@ -73,10 +73,10 @@ export class Block {
         ctx.fillStyle = '#696969';
 
         ctx.textAlign = 'center';
-        ctx.font = `${rs(16)}px Arial`;
+        ctx.font = `${rs(12)}px Arial`;
 
         let txSize = ctx.measureText(this.health.toString());
-        ctx.fillText(this.health.toString(), rs(this.pos.x + this.width / 2), rs(this.pos.y + this.height / 2) + txSize.actualBoundingBoxAscent / 2);
+        ctx.fillText(nc(this.health), rs(this.pos.x + this.width / 2), rs(this.pos.y + this.height / 2) + txSize.actualBoundingBoxAscent / 2);
     }
 }
 
@@ -84,5 +84,5 @@ interface BlockOptions {
     x: number,
     y: number,
     sizeScale?: number,
-    health: number
+    health: bigint|number
 }
