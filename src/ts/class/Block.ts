@@ -8,6 +8,8 @@ export class Block {
 
     health: bigint;
 
+    value: bigint;
+
     collisionSides;
 
     constructor(o: BlockOptions) {
@@ -17,6 +19,8 @@ export class Block {
         this.height = 30 * o.sizeScale;
 
         this.health = typeof o.health == 'bigint' ? o.health : BigInt(o.health);
+
+        this.value = this.health;
 
         this.collisionSides = {
             left: true,
@@ -61,6 +65,10 @@ export class Block {
         for (let b of game.blocks) {
             this.collides(b)
         }
+    }
+
+    die() {
+        game.ballBank.add(this.value);
     }
 
     draw(ctx: CanvasRenderingContext2D) {

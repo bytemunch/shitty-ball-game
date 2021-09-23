@@ -10,14 +10,14 @@ export class Ball {
 
     size: number;
 
-    health: bigint;
+    health: number;
 
     constructor(o: BallOptions) {
         this.pos = new Vector({ x: o.x, y: o.y });
         this.vel = new Vector({ a: o.a, m: 5 });
         this.size = 5;
 
-        this.health = 999999999999999n;
+        this.health = game.upgrades.bounces;
     }
 
     update() {
@@ -73,7 +73,7 @@ export class Ball {
             if (o.constructor.name == 'Block') {
                 let b = o as Block;
                 const negateHealth = () => {
-                    b.health--;
+                    b.health -= game.upgrades.ballDamage;
                     this.health--;
                 }
                 if (leftCollide && b.collisionSides.left) {

@@ -44,5 +44,6 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('bollocks');
 
     game = new BallGame;
+    game.postInit();
     console.log(game);
 });

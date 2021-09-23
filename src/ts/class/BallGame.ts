@@ -1,8 +1,11 @@
-import { bg, rh, rs } from "../main.js";
+import { bg, rh, rs, rs2 } from "../main.js";
 import { Ball } from "./Ball.js";
 import { Block } from "./Block.js";
 import { Wall } from "./Wall.js";
 import { BallGun } from "./BallGun.js";
+import { BallBank } from "./BallBank.js";
+import { CashBank } from "./CashBank.js";
+import { BounceUpgrade } from "./BounceUpgrade.js";
 
 export const lowerGameBound = 500;
 
@@ -19,6 +22,8 @@ export class BallGame {
 
     actionQueue: any[];
 
+    upgrades: any;
+
     // Main canvas
     cnv: HTMLCanvasElement;
     ctx: CanvasRenderingContext2D;
@@ -34,11 +39,13 @@ export class BallGame {
     naturalGameBB: { x: number, y: number, width: number, height: number, interfaceTop: number };
 
     score: bigint;
-    ballBank: bigint;
+    ballBank: BallBank;
+    cashBank: CashBank;
 
     ballGun: BallGun;
 
     loopHandle;
+    bounceUpgrade: BounceUpgrade;
 
     constructor() {
         // Setup natural sizes
@@ -50,6 +57,14 @@ export class BallGame {
             height: 568,
             interfaceTop: 504
         }
+
+        // setup upgrades
+        this.upgrades = {
+            cashDropped: 1,
+            ballDamage: 1n,
+            bounces: 2
+        }
+
         // Grab targetdiv
         this.targetDiv = document.querySelector('#ball-game');
 
@@ -78,15 +93,11 @@ export class BallGame {
 
         // Setup initial variables
         this.score = 0n;
-        this.ballBank = 500n;
         this.balls = [];
         this.walls = [];
         this.blocks = [];
+        this.interfaces = [];
         this.actionQueue = [];
-
-        this.interfaces = [
-
-        ];
 
         // Setup initial objects
         this.ballGun = new BallGun;
@@ -144,52 +155,66 @@ export class BallGame {
         // add interaction handlers
         this.targetDiv.addEventListener('touchstart', e => {
             e.preventDefault();
+            const x = e.touches[0].clientX - this.targetBB.x;
+            const y = e.touches[0].clientY - this.targetBB.y;
 
-            const moveFn = e => {
-                e.preventDefault();
+            if (rs2(y) < this.naturalGameBB.interfaceTop) {
+                // ingame touch
+                const moveFn = e => {
+                    e.preventDefault();
 
-                this.ballGun.setTarget(e.touches[0].clientX - this.targetBB.x, e.touches[0].clientY - this.targetBB.y);
+                    this.ballGun.setTarget(e.touches[0].clientX - this.targetBB.x, e.touches[0].clientY - this.targetBB.y);
+                }
+
+                moveFn(e);
+
+                this.targetDiv.addEventListener('touchmove', moveFn);
+
+                const upFn = e => {
+                    e.preventDefault();
+
+                    this.targetDiv.removeEventListener('touchmove', moveFn);
+                    this.targetDiv.removeEventListener('touchend', upFn);
+
+                    this.ballGun.fire(this.balls, this.ballBank.magSize);
+                }
+
+                this.targetDiv.addEventListener('touchend', upFn);
+            } else {
+                // interfaces
+                for (let i of this.interfaceObjects) {
+                    if (i.pointCollides(x,y)) i.click();
+                }
             }
-
-            moveFn(e);
-
-            this.targetDiv.addEventListener('touchmove', moveFn);
-
-            const upFn = e => {
-                e.preventDefault();
-
-                this.targetDiv.removeEventListener('touchmove', moveFn);
-                this.targetDiv.removeEventListener('touchend', upFn);
-
-                this.ballGun.fire(this.balls, 100);
-            }
-
-            this.targetDiv.addEventListener('touchend', upFn);
         })
 
         this.targetDiv.addEventListener('mousedown', e => {
             e.preventDefault();
+            if (e.offsetX < this.naturalGameBB.interfaceTop) {
+                // ingame click
+                const moveFn = e => {
+                    e.preventDefault();
 
-            const moveFn = e => {
-                e.preventDefault();
+                    this.ballGun.setTarget(e.offsetX, e.offsetY);
+                }
 
-                this.ballGun.setTarget(e.offsetX, e.offsetY);
+                moveFn(e);
+
+                this.targetDiv.addEventListener('mousemove', moveFn);
+
+                const upFn = e => {
+                    e.preventDefault();
+
+                    this.targetDiv.removeEventListener('mousemove', moveFn);
+                    this.targetDiv.removeEventListener('mouseup', upFn);
+
+                    this.ballGun.fire(this.balls, this.ballBank.magSize);
+                }
+
+                this.targetDiv.addEventListener('mouseup', upFn);
+            } else {
+                // interfaces
             }
-
-            moveFn(e);
-
-            this.targetDiv.addEventListener('mousemove', moveFn);
-
-            const upFn = e => {
-                e.preventDefault();
-
-                this.targetDiv.removeEventListener('mousemove', moveFn);
-                this.targetDiv.removeEventListener('mouseup', upFn);
-
-                this.ballGun.fire(this.balls, 100);
-            }
-
-            this.targetDiv.addEventListener('mouseup', upFn);
         })
 
         // TEST
@@ -212,6 +237,13 @@ export class BallGame {
         rh.ratio = this.targetBB.width / this.naturalGameBB.width;
 
         // this.testDraw();
+    }
+
+    postInit() {
+        // add interfaces
+        this.ballBank = new BallBank({x:256});
+        this.cashBank = new CashBank({x:16});
+        this.bounceUpgrade = new BounceUpgrade({x:70})
     }
 
     testDraw() {
@@ -260,7 +292,7 @@ export class BallGame {
     }
 
     get interfaceObjects() {
-        return [];
+        return [this.ballBank, this.cashBank, this.bounceUpgrade, ...this.interfaces];
     }
 
     get gameObjects() {
@@ -282,7 +314,7 @@ export class BallGame {
             let fn = this.actionQueue[i];
             if (fn.trigger < prevFrameTime) {
                 fn.cb(fn.args);
-                this.actionQueue.splice(i,1);
+                this.actionQueue.splice(i, 1);
             }
         }
         // cleeeear
@@ -296,6 +328,7 @@ export class BallGame {
 
         for (let i = this.blocks.length - 1; i >= 0; i--) {
             if (this.blocks[i].health <= 0) {
+                this.blocks[i].die();
                 this.blocks.splice(i, 1);
             }
         }

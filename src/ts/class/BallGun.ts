@@ -54,14 +54,20 @@ export class BallGun {
 
         this.reloadProgress = 0;
 
-        ballArray.push(new Ball({
-            x: this.pos.x + this.target.x,
-            y: this.pos.y + this.target.y,
-            a: this.fireAngle
-        }));
+        if (game.ballBank.use(1)) {
+            ballArray.push(new Ball({
+                x: this.pos.x + this.target.x,
+                y: this.pos.y + this.target.y,
+                a: this.fireAngle
+            }));
+        } else {
+            // couldn't fire!
+            this.firing = false;
+            return;
+        }
 
         if (count - 1 > 0) {
-            game.queue(1000/15, () => this.fire(ballArray, count - 1, true));
+            game.queue(1000 / 15, () => this.fire(ballArray, count - 1, true));
         } else {
             this.firing = false;
         }
