@@ -1,4 +1,4 @@
-import { BallGame, prevFrameTime } from './class/BallGame.js';
+import { BallGame } from './class/BallGame.js';
 import { ResizeHandler } from './class/ResizeHandler.js';
 
 // Resizing functions

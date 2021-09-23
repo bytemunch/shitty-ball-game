@@ -9,8 +9,9 @@ import { BounceUpgrade } from "./BounceUpgrade.js";
 
 export const lowerGameBound = 500;
 
-export let deltaTime = 0;
+let deltaTime = 0;
 export let prevFrameTime = 0;
+export let timestep = 0;
 
 export let frameCount = 0;
 
@@ -46,8 +47,10 @@ export class BallGame {
 
     loopHandle;
     bounceUpgrade: BounceUpgrade;
+    timeFactor: number;
 
     constructor() {
+        this.timeFactor = 1;
         // Setup natural sizes
         // 64px for interface, less margins makes 48px touch targets
         this.naturalGameBB = {
@@ -300,7 +303,7 @@ export class BallGame {
     }
 
     queue(ms, cb, args?) {
-        const trigger = prevFrameTime + ms;
+        const trigger = prevFrameTime + ms * (1/this.timeFactor);
         this.actionQueue.push({ trigger, cb, args });
     }
 
@@ -308,6 +311,7 @@ export class BallGame {
         // timings
         frameCount++;
         deltaTime = (t - prevFrameTime) / 20;
+        timestep = deltaTime * this.timeFactor;
         prevFrameTime = t;
         // action queue
         for (let i = this.actionQueue.length - 1; i >= 0; i--) {

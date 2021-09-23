@@ -1,5 +1,5 @@
 import { game, rs } from "../main.js";
-import { deltaTime } from "./BallGame.js";
+import { timestep } from "./BallGame.js";
 import { Block } from "./Block.js";
 import { Vector } from "./Vector.js";
 import { Wall } from "./Wall.js";
@@ -21,7 +21,7 @@ export class Ball {
     }
 
     update() {
-        this.pos.addV(this.vel.iMult(deltaTime));
+        this.pos.addV(this.vel.iMult(timestep));
 
         for (let o of game.gameObjects) {
             if (this.collide(o)) {
@@ -54,10 +54,10 @@ export class Ball {
             this.top < o.bottom &&
             this.bottom > o.top) {
             const prevPosition = {
-                left: this.pos.x - this.vel.x * deltaTime - this.size,
-                right: this.pos.x - this.vel.x * deltaTime + this.size,
-                top: this.pos.y - this.vel.y * deltaTime - this.size,
-                bottom: this.pos.y - this.vel.y * deltaTime + this.size,
+                left: this.pos.x - this.vel.x * timestep - this.size,
+                right: this.pos.x - this.vel.x * timestep + this.size,
+                top: this.pos.y - this.vel.y * timestep - this.size,
+                bottom: this.pos.y - this.vel.y * timestep + this.size,
             }
 
             const rightCollide = prevPosition.right < o.left && this.right >= o.left;
