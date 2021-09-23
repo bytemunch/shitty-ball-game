@@ -88,6 +88,11 @@ export class Vector {
         this.x *= s;
         this.y *= s;
     }
+
+    // nonmutating functions
+    iMult(s:number) {
+        return new Vector({x:this.x*s, y:this.y*s});
+    }
 }
 
 interface VecOptions {

@@ -6,11 +6,18 @@ import { BallGun } from "./BallGun.js";
 
 export const lowerGameBound = 500;
 
+export let deltaTime = 0;
+export let prevFrameTime = 0;
+
+export let frameCount = 0;
+
 export class BallGame {
     walls: Wall[];
     balls: Ball[];
     blocks: Block[];
     interfaces: any[];
+
+    actionQueue: any[];
 
     // Main canvas
     cnv: HTMLCanvasElement;
@@ -75,6 +82,7 @@ export class BallGame {
         this.balls = [];
         this.walls = [];
         this.blocks = [];
+        this.actionQueue = [];
 
         this.interfaces = [
 
@@ -256,10 +264,27 @@ export class BallGame {
     }
 
     get gameObjects() {
-        return [...this.walls, ...this.blocks, ...this.balls, this.ballGun];
+        return [...this.walls, ...this.blocks, ...this.balls];
+    }
+
+    queue(ms, cb, args?) {
+        const trigger = prevFrameTime + ms;
+        this.actionQueue.push({ trigger, cb, args });
     }
 
     loop(t: DOMHighResTimeStamp) {
+        // timings
+        frameCount++;
+        deltaTime = (t - prevFrameTime) / 20;
+        prevFrameTime = t;
+        // action queue
+        for (let i = this.actionQueue.length - 1; i >= 0; i--) {
+            let fn = this.actionQueue[i];
+            if (fn.trigger < prevFrameTime) {
+                fn.cb(fn.args);
+                this.actionQueue.splice(i,1);
+            }
+        }
         // cleeeear
         this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 
@@ -288,6 +313,8 @@ export class BallGame {
         for (let o of this.gameObjects) {
             o.draw(this.ctx);
         }
+
+        this.ballGun.draw(this.ctx);
 
         requestAnimationFrame(this.loop.bind(this));
     }

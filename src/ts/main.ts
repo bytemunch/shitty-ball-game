@@ -1,4 +1,4 @@
-import { BallGame } from './class/BallGame.js';
+import { BallGame, prevFrameTime } from './class/BallGame.js';
 import { ResizeHandler } from './class/ResizeHandler.js';
 
 // Resizing functions
@@ -37,14 +37,8 @@ export const nc = (n:bigint|number) => {
     }
 }
 
-export const waitFor = ms => {
-    return new Promise(res => {
-        setTimeout(() => { res(0) }, ms)
-    })
-}
-
 // TODO export const and init in domready
-export let game;
+export let game:BallGame;
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log('bollocks');

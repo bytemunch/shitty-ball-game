@@ -1,4 +1,4 @@
-import { rs, rs2, waitFor } from "../main.js";
+import { game, rs, rs2 } from "../main.js";
 import { Ball } from "./Ball.js";
 import { lowerGameBound } from "./BallGame.js";
 import { Vector } from "./Vector.js";
@@ -60,8 +60,8 @@ export class BallGun {
             a: this.fireAngle
         }));
 
-        if (count-1 > 0) {
-            waitFor(50).then(()=>this.fire(ballArray, count-1, true));
+        if (count - 1 > 0) {
+            game.queue(1000/15, () => this.fire(ballArray, count - 1, true));
         } else {
             this.firing = false;
         }
