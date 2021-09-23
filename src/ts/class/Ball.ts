@@ -99,6 +99,8 @@ export class Ball {
             } else {
                 if (leftCollide || rightCollide) this.vel.x *= -1;
                 if (topCollide || bottomCollide) this.vel.y *= -1;
+
+                this.health--;
             }
 
             // this.health--;

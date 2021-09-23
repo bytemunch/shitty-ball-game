@@ -12,7 +12,7 @@ export class BallBank {
         this.pos = new Vector({ x: o.x, y: game.naturalGameBB.interfaceTop + 6 });
         this.width = 48;
         this.height = 48;
-        this.magSize = 100;
+        this.magSize = 1;
         this.count = 100n;
     }
 
@@ -73,7 +73,9 @@ export class BallBank {
 
     use(amt: number) {
         this.count = this.count - BigInt(amt);
-        this.setMaxMagSize();
+        // this.setMaxMagSize();
+
+        if (this.count < this.magSize) this.click();
 
         if (this.count <= 0) {
             this.count = 0n;

@@ -11,7 +11,7 @@ export class CashBank {
         this.pos = new Vector({ x: o.x, y: game.naturalGameBB.interfaceTop + 6 });
         this.width = 48;
         this.height = 48;
-        this.count = 100n;
+        this.count = 0n;
     }
 
     update() {
@@ -30,8 +30,9 @@ export class CashBank {
 
     }
 
-    use(amt: number) {
-        this.count = this.count - BigInt(amt);
+    use(amt: number | bigint) {
+        if (typeof amt == 'number') amt = BigInt(Math.floor(amt));
+        this.count = this.count - amt;
 
         if (this.count <= 0) {
             this.count = 0n;

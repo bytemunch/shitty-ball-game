@@ -1,5 +1,7 @@
 import { game, nc, rs } from "../main.js";
 import { Vector } from "./Vector.js";
+import { CashDrop } from "./CashDrop.js";
+import { BallDrop } from "./BallDrop.js";
 
 export class Block {
     pos: Vector;
@@ -68,7 +70,12 @@ export class Block {
     }
 
     die() {
-        game.ballBank.add(this.value);
+        if (this.value == 0n) return;
+        let ballDrop = 5n + this.value/4n;
+        game.ballBank.add(ballDrop);
+        game.interfaces.push(new BallDrop(this.pos.x + this.width/2, this.pos.y+this.height/2, ballDrop));
+        game.cashBank.add(this.value*10n);
+        game.interfaces.push(new CashDrop(this.pos.x + this.width/2, this.pos.y+this.height, this.value*10n));
     }
 
     draw(ctx: CanvasRenderingContext2D) {
@@ -92,5 +99,5 @@ interface BlockOptions {
     x: number,
     y: number,
     sizeScale?: number,
-    health: bigint|number
+    health: bigint | number
 }

@@ -6,6 +6,7 @@ import { BallGun } from "./BallGun.js";
 import { BallBank } from "./BallBank.js";
 import { CashBank } from "./CashBank.js";
 import { BounceUpgrade } from "./BounceUpgrade.js";
+import { DamageUpgrade } from "./DamageUpgrade.js";
 
 export const lowerGameBound = 500;
 
@@ -20,6 +21,8 @@ export class BallGame {
     balls: Ball[];
     blocks: Block[];
     interfaces: any[];
+
+    level: number;
 
     actionQueue: any[];
 
@@ -47,10 +50,13 @@ export class BallGame {
 
     loopHandle;
     bounceUpgrade: BounceUpgrade;
+    damageUpgrade: DamageUpgrade;
     timeFactor: number;
 
     constructor() {
         this.timeFactor = 1;
+
+        this.level = 0;
         // Setup natural sizes
         // 64px for interface, less margins makes 48px touch targets
         this.naturalGameBB = {
@@ -129,32 +135,6 @@ export class BallGame {
             }),
         ]
 
-        // pull test level from image
-        let ocnv = document.createElement('canvas');
-        let octx = ocnv.getContext('2d');
-
-        let oimg = new Image();
-
-        oimg.onload = () => {
-            octx.drawImage(oimg, 0, 0);
-            let imgData = octx.getImageData(0, 0, 10, 10);
-
-            console.log(imgData);
-            // Loading from image
-            for (let i = 0; i < 10; i++) {
-                for (let j = 0; j < 10; j++) {
-                    console.log(imgData.data[10 * i + j]);
-
-                    let channelMix = imgData.data[(10 * j * 4 + i * 4)] + imgData.data[(10 * j * 4 + i * 4) + 1] + imgData.data[(10 * j * 4 + i * 4) + 2];
-
-                    let bh = BigInt(Math.ceil(100 * (channelMix / (255 * 3))));
-                    this.blocks.push(new Block({ x: bg(i), y: bg(j), health: bh }));
-                }
-            }
-        }
-
-        oimg.src = './img/level-test.png';
-
         // add interaction handlers
         this.targetDiv.addEventListener('touchstart', e => {
             e.preventDefault();
@@ -186,7 +166,7 @@ export class BallGame {
             } else {
                 // interfaces
                 for (let i of this.interfaceObjects) {
-                    if (i.pointCollides(x,y)) i.click();
+                    if (i.pointCollides && i.pointCollides(x, y)) i.click();
                 }
             }
         })
@@ -223,8 +203,60 @@ export class BallGame {
         // TEST
         // this.testDraw();
 
-        // Begin main loop
-        this.loopHandle = requestAnimationFrame(this.loop.bind(this));
+    }
+
+    async loadLevel() {
+        // add balls in play back to bank
+        this.ballBank.add(this.balls.length);
+
+        this.balls.forEach(b => b.health = 0);
+
+        this.ballGun.forceStop = true;
+
+        let levelsPerDifficulty = {
+            easy:2,
+            medium:2,
+            hard:1,
+            bonus:1
+        }
+
+        let difficulty = 'bonus';
+
+        let lvl = Math.floor(1+Math.random()*levelsPerDifficulty[difficulty]);
+        let scaling = Math.ceil(this.level / 5) || 1;
+
+        let levelLoaded = new Promise(res => {
+            // pull test level from image
+            let ocnv = document.createElement('canvas');
+            let octx = ocnv.getContext('2d');
+
+            let oimg = new Image();
+
+            oimg.onload = () => {
+                octx.drawImage(oimg, 0, 0);
+                let imgData = octx.getImageData(0, 0, 10, 10);
+
+                console.log(imgData);
+                // Loading from image
+                for (let i = 0; i < 10; i++) {
+                    for (let j = 0; j < 10; j++) {
+                        console.log(imgData.data[10 * i + j]);
+
+                        let channelMix = imgData.data[(10 * j * 4 + i * 4)] + imgData.data[(10 * j * 4 + i * 4) + 1] + imgData.data[(10 * j * 4 + i * 4) + 2];
+
+                        let bh = BigInt(Math.ceil(scaling * 100 * (channelMix / (255 * 3))));
+                        this.blocks.push(new Block({ x: bg(i), y: bg(j), health: bh }));
+                    }
+                }
+
+                res(0);
+            }
+
+            oimg.src = `./levels/${difficulty}/${lvl}.png`;
+        })
+
+
+        return levelLoaded;
     }
 
     onResize() {
@@ -244,50 +276,13 @@ export class BallGame {
 
     postInit() {
         // add interfaces
-        this.ballBank = new BallBank({x:256});
-        this.cashBank = new CashBank({x:16});
-        this.bounceUpgrade = new BounceUpgrade({x:70})
-    }
+        this.ballBank = new BallBank({ x: 256 });
+        this.cashBank = new CashBank({ x: 16 });
+        this.bounceUpgrade = new BounceUpgrade({ x: 70 })
+        this.damageUpgrade = new DamageUpgrade({ x: 124 })
 
-    testDraw() {
-        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-        this.iCtx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-
-        this.ctx.strokeStyle = '#696969';
-        this.ctx.beginPath();
-        this.ctx.moveTo(rs(160), 0);
-        this.ctx.lineTo(rs(160), rs(568));
-        this.ctx.closePath();
-        this.ctx.stroke();
-
-        this.ctx.fillStyle = '#FF000088';
-        this.ctx.fillRect(rs(50), rs(50), rs(100), rs(100));
-
-        this.iCtx.fillStyle = '#0000FF88';
-        this.iCtx.fillRect(rs(75), rs(75), rs(100), rs(100));
-
-        this.ctx.fillStyle = '#FF0000FF';
-        this.ctx.fillRect(rs(100), rs(100), rs(100), rs(100));
-
-        this.iCtx.fillStyle = '#0000FFFF';
-        this.iCtx.fillRect(rs(125), rs(125), rs(100), rs(100));
-
-        let bk = new Block({ x: 118, y: 300, health: 1 });
-        bk.draw(this.ctx);
-
-        let bk2 = new Block({ x: 150, y: 300, health: 10 });
-        bk2.draw(this.ctx);
-
-        let bk3 = new Block({ x: 182, y: 300, health: 100 });
-        bk3.draw(this.ctx);
-
-        let bl = new Ball({ x: 200, y: 400, a: 0 });
-        bl.draw(this.ctx);
-
-        let w = new Wall({ x: 100, y: 450, width: 200, height: 10 });
-        w.draw(this.ctx);
-
-        this.ballGun.draw(this.ctx);
+        // load level 1             // begin main loop
+        this.loadLevel().then(() => this.loopHandle = requestAnimationFrame(this.loop.bind(this)));
     }
 
     get allObjects() {
@@ -295,7 +290,7 @@ export class BallGame {
     }
 
     get interfaceObjects() {
-        return [this.ballBank, this.cashBank, this.bounceUpgrade, ...this.interfaces];
+        return [this.ballBank, this.cashBank, this.bounceUpgrade, this.damageUpgrade, ...this.interfaces];
     }
 
     get gameObjects() {
@@ -303,16 +298,23 @@ export class BallGame {
     }
 
     queue(ms, cb, args?) {
-        const trigger = prevFrameTime + ms * (1/this.timeFactor);
+        const trigger = prevFrameTime + ms * (1 / this.timeFactor);
         this.actionQueue.push({ trigger, cb, args });
     }
 
-    loop(t: DOMHighResTimeStamp) {
+    async loop(t: DOMHighResTimeStamp) {
         // timings
         frameCount++;
         deltaTime = (t - prevFrameTime) / 20;
         timestep = deltaTime * this.timeFactor;
         prevFrameTime = t;
+
+        if (this.blocks.length == 0) {
+            // load next level!
+            this.level++;
+            await this.loadLevel();
+        }
+
         // action queue
         for (let i = this.actionQueue.length - 1; i >= 0; i--) {
             let fn = this.actionQueue[i];
@@ -321,8 +323,10 @@ export class BallGame {
                 this.actionQueue.splice(i, 1);
             }
         }
+
         // cleeeear
         this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+        this.iCtx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 
         for (let i = this.balls.length - 1; i >= 0; i--) {
             if (this.balls[i].pos.y > lowerGameBound || this.balls[i].pos.y < 0 || this.balls[i].health <= 0) {
@@ -335,6 +339,15 @@ export class BallGame {
                 this.blocks[i].die();
                 this.blocks.splice(i, 1);
             }
+        }
+
+        // interface update
+        for (let i = this.interfaces.length - 1; i >= 0; i--) {
+            if (this.interfaces[i].dead) {
+                this.interfaces.splice(i, 1);
+                continue;
+            }
+            this.interfaces[i].update()
         }
 
         // update everything
