@@ -1,6 +1,7 @@
 import { game, rs } from "../main.js";
 import { timestep } from "./BallGame.js";
 import { Block } from "./Block.js";
+import { Particle } from "./Particle.js";
 import { Vector } from "./Vector.js";
 import { Wall } from "./Wall.js";
 
@@ -53,6 +54,9 @@ export class Ball {
             this.right > o.left &&
             this.top < o.bottom &&
             this.bottom > o.top) {
+
+            // Collision!
+
             const prevPosition = {
                 left: this.pos.x - this.vel.x * timestep - this.size,
                 right: this.pos.x - this.vel.x * timestep + this.size,
@@ -105,8 +109,17 @@ export class Ball {
 
             // this.health--;
 
+            // Add particles
+            for (let i = 0; i < 10; i++) {
+                game.particles.push(new Particle({ x: this.pos.x, y: this.pos.y }));
+            }
 
-
+            if (this.health <= 0) {
+                // add more particles for death
+                for (let i = 0; i < 10; i++) {
+                    game.particles.push(new Particle({ x: this.pos.x, y: this.pos.y }));
+                }
+            }
             return true;
 
             // console.log(`collision! R:${rightCollide} L:${leftCollide} T:${topCollide} B:${bottomCollide}`);

@@ -58,8 +58,6 @@ export class BallGun {
 
         this.reloadProgress = 0;
 
-        console.log(this.forceStop);
-
         if (this.forceStop) {
             this.forceStop = false;
             this.firing = false;

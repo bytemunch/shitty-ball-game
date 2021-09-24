@@ -7,6 +7,7 @@ import { BallBank } from "./BallBank.js";
 import { CashBank } from "./CashBank.js";
 import { BounceUpgrade } from "./BounceUpgrade.js";
 import { DamageUpgrade } from "./DamageUpgrade.js";
+import { Particle } from "./Particle.js";
 
 export const lowerGameBound = 500;
 
@@ -21,6 +22,7 @@ export class BallGame {
     balls: Ball[];
     blocks: Block[];
     interfaces: any[];
+    particles: Particle[];
 
     level: number;
 
@@ -105,6 +107,7 @@ export class BallGame {
         this.balls = [];
         this.walls = [];
         this.blocks = [];
+        this.particles = [];
         this.interfaces = [];
         this.actionQueue = [];
 
@@ -214,15 +217,15 @@ export class BallGame {
         this.ballGun.forceStop = true;
 
         let levelsPerDifficulty = {
-            easy:2,
-            medium:2,
-            hard:1,
-            bonus:1
+            easy: 2,
+            medium: 2,
+            hard: 1,
+            bonus: 1
         }
 
         let difficulty = 'bonus';
 
-        let lvl = Math.floor(1+Math.random()*levelsPerDifficulty[difficulty]);
+        let lvl = Math.floor(1 + Math.random() * levelsPerDifficulty[difficulty]);
         let scaling = Math.ceil(this.level / 5) || 1;
 
         let levelLoaded = new Promise(res => {
@@ -365,6 +368,14 @@ export class BallGame {
         }
 
         this.ballGun.draw(this.ctx);
+
+        // TODO if frametime low enough?
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+            let p = this.particles[i];
+            p.update();
+            if (p.dead) { this.particles.splice(i, 1); continue; }
+            p.draw(this.ctx);
+        }
 
         requestAnimationFrame(this.loop.bind(this));
     }

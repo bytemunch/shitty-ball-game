@@ -2,6 +2,7 @@ import { game, nc, rs } from "../main.js";
 import { Vector } from "./Vector.js";
 import { CashDrop } from "./CashDrop.js";
 import { BallDrop } from "./BallDrop.js";
+import { Particle } from "./Particle.js";
 
 export class Block {
     pos: Vector;
@@ -45,6 +46,14 @@ export class Block {
         return this.pos.y + this.height;
     }
 
+    get cx() {
+        return this.pos.x + this.width/2;
+    }
+    
+    get cy() {
+        return this.pos.y + this.height/2;
+    }
+
     collides(b: Block) {
         if (b == this) return;
 
@@ -76,6 +85,10 @@ export class Block {
         game.interfaces.push(new BallDrop(this.pos.x + this.width/2, this.pos.y+this.height/2, ballDrop));
         game.cashBank.add(this.value*10n);
         game.interfaces.push(new CashDrop(this.pos.x + this.width/2, this.pos.y+this.height, this.value*10n));
+
+        for (let i = 0; i < this.width; i++) {
+            game.particles.push(new Particle({ x: this.cx, y: this.cy }));
+        }
     }
 
     draw(ctx: CanvasRenderingContext2D) {
