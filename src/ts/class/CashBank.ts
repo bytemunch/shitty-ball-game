@@ -27,17 +27,16 @@ export class CashBank {
     }
 
     click() {
-
+        game.pause();
     }
 
     use(amt: number | bigint) {
         if (typeof amt == 'number') amt = BigInt(Math.floor(amt));
+
+        if (this.count - amt < 0) return false;
+
         this.count = this.count - amt;
 
-        if (this.count <= 0) {
-            this.count = 0n;
-            return false;
-        }
         return true;
     }
 
@@ -54,7 +53,12 @@ export class CashBank {
         ctx.textAlign = 'center';
         ctx.fillStyle = '#FFFFFF';
         ctx.font = `${rs(12)}px Arial`;
-        ctx.fillText('$' + nc2(this.count), rs(this.pos.x + this.width / 2), rs(this.pos.y + this.height / 2));
+        ctx.fillText('$' + nc2(this.count), rs(this.pos.x + this.width / 2), rs(this.pos.y + this.height * 0.4));
+
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = `${rs(12)}px Arial`;
+        ctx.fillText('Pause', rs(this.pos.x + this.width / 2), rs(this.pos.y + this.height * 0.7));
     }
 }
 

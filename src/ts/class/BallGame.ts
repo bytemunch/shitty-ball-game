@@ -39,8 +39,10 @@ export class BallGame {
     iCtx: CanvasRenderingContext2D;
 
     // DOM stuff
-    targetDiv: HTMLDivElement;
-    targetBB: DOMRect;
+    touchTarget: HTMLDivElement;
+    containerDiv: HTMLDivElement;
+    containerBB: DOMRect;
+    pauseMenu: HTMLDivElement;
 
     naturalGameBB: { x: number, y: number, width: number, height: number, interfaceTop: number };
 
@@ -76,8 +78,10 @@ export class BallGame {
             bounces: 2
         }
 
-        // Grab targetdiv
-        this.targetDiv = document.querySelector('#ball-game');
+        // Grab DOM
+        this.containerDiv = document.querySelector('#ball-game');
+        this.touchTarget = document.querySelector('#touch-target');
+        this.pauseMenu = document.querySelector('#pause-menu');
 
         // Create canvases
         this.cnv = document.createElement('canvas');
@@ -94,8 +98,8 @@ export class BallGame {
         this.onResize();
 
         // Append canvases to document in #ball-game
-        this.targetDiv.appendChild(this.cnv);
-        this.targetDiv.appendChild(this.iCnv);
+        this.containerDiv.appendChild(this.cnv);
+        this.containerDiv.appendChild(this.iCnv);
 
         // resize canvas on window resize
         window.addEventListener('resize', e => {
@@ -139,33 +143,33 @@ export class BallGame {
         ]
 
         // add interaction handlers
-        this.targetDiv.addEventListener('touchstart', e => {
+        this.touchTarget.addEventListener('touchstart', e => {
             e.preventDefault();
-            const x = e.touches[0].clientX - this.targetBB.x;
-            const y = e.touches[0].clientY - this.targetBB.y;
+            const x = e.touches[0].clientX - this.containerBB.x;
+            const y = e.touches[0].clientY - this.containerBB.y;
 
             if (rs2(y) < this.naturalGameBB.interfaceTop) {
                 // ingame touch
                 const moveFn = e => {
                     e.preventDefault();
 
-                    this.ballGun.setTarget(e.touches[0].clientX - this.targetBB.x, e.touches[0].clientY - this.targetBB.y);
+                    this.ballGun.setTarget(e.touches[0].clientX - this.containerBB.x, e.touches[0].clientY - this.containerBB.y);
                 }
 
                 moveFn(e);
 
-                this.targetDiv.addEventListener('touchmove', moveFn);
+                this.touchTarget.addEventListener('touchmove', moveFn);
 
                 const upFn = e => {
                     e.preventDefault();
 
-                    this.targetDiv.removeEventListener('touchmove', moveFn);
-                    this.targetDiv.removeEventListener('touchend', upFn);
+                    this.touchTarget.removeEventListener('touchmove', moveFn);
+                    this.touchTarget.removeEventListener('touchend', upFn);
 
                     this.ballGun.fire(this.balls, this.ballBank.magSize);
                 }
 
-                this.targetDiv.addEventListener('touchend', upFn);
+                this.touchTarget.addEventListener('touchend', upFn);
             } else {
                 // interfaces
                 for (let i of this.interfaceObjects) {
@@ -174,7 +178,7 @@ export class BallGame {
             }
         })
 
-        this.targetDiv.addEventListener('mousedown', e => {
+        this.touchTarget.addEventListener('mousedown', e => {
             e.preventDefault();
             if (e.offsetX < this.naturalGameBB.interfaceTop) {
                 // ingame click
@@ -186,22 +190,25 @@ export class BallGame {
 
                 moveFn(e);
 
-                this.targetDiv.addEventListener('mousemove', moveFn);
+                this.touchTarget.addEventListener('mousemove', moveFn);
 
                 const upFn = e => {
                     e.preventDefault();
 
-                    this.targetDiv.removeEventListener('mousemove', moveFn);
-                    this.targetDiv.removeEventListener('mouseup', upFn);
+                    this.touchTarget.removeEventListener('mousemove', moveFn);
+                    this.touchTarget.removeEventListener('mouseup', upFn);
 
                     this.ballGun.fire(this.balls, this.ballBank.magSize);
                 }
 
-                this.targetDiv.addEventListener('mouseup', upFn);
+                this.touchTarget.addEventListener('mouseup', upFn);
             } else {
                 // interfaces
             }
         })
+
+        // add listeners to pause menu
+        this.pauseMenu.querySelector('#resume').addEventListener('click', this.unpause.bind(this));
 
         // TEST
         // this.testDraw();
@@ -243,8 +250,6 @@ export class BallGame {
                 // Loading from image
                 for (let i = 0; i < 10; i++) {
                     for (let j = 0; j < 10; j++) {
-                        console.log(imgData.data[10 * i + j]);
-
                         let channelMix = imgData.data[(10 * j * 4 + i * 4)] + imgData.data[(10 * j * 4 + i * 4) + 1] + imgData.data[(10 * j * 4 + i * 4) + 2];
 
                         let bh = BigInt(Math.ceil(scaling * 100 * (channelMix / (255 * 3))));
@@ -262,17 +267,50 @@ export class BallGame {
         return levelLoaded;
     }
 
+    pause() {
+        for (let fn of this.actionQueue) {
+            fn.trigger += 10000000000;
+        }
+        // Decrease timestep to 0
+        const decreaseTimeFactor = () => {
+            this.timeFactor *= 0.9;
+            if (this.timeFactor > 0.1) { this.actionQueue.push({ trigger: 0, cb: decreaseTimeFactor }) } else { this.timeFactor = 0 };
+        }
+
+        decreaseTimeFactor();
+
+        // TODO fadein pause menu
+        this.pauseMenu.style.display = 'block';
+    }
+
+    unpause() {
+        // TODO fadeout pause menu
+        this.pauseMenu.style.display = 'none';
+
+        for (let fn of this.actionQueue) {
+            fn.trigger -= 10000000000 + prevFrameTime;
+        }
+
+        // increase timestep to 1
+        this.timeFactor = 0.1;
+        const increaseTimeFactor = () => {
+            this.timeFactor *= 1.1;
+            if (this.timeFactor < 1) { this.actionQueue.push({ trigger: 0, cb: increaseTimeFactor }) } else { this.timeFactor = 1 };
+        }
+        increaseTimeFactor();
+    }
+
     onResize() {
-        this.targetBB = this.targetDiv.getBoundingClientRect();
+        this.containerBB = this.containerDiv.getBoundingClientRect();
 
-        this.iCnv.width = this.targetBB.width;
-        this.iCnv.height = this.targetBB.height;
+        this.iCnv.width = this.containerBB.width;
+        this.iCnv.height = this.containerBB.height;
 
-        this.cnv.width = this.targetBB.width;
-        this.cnv.height = this.targetBB.height;
+        this.cnv.width = this.containerBB.width;
+        this.cnv.height = this.containerBB.height;
 
         // Get ratio to resize objects by
-        rh.ratio = this.targetBB.width / this.naturalGameBB.width;
+        rh.ratio = this.containerBB.width / this.naturalGameBB.width;
 
         // this.testDraw();
     }

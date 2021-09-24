@@ -77,7 +77,8 @@ export class BallGun {
         }
 
         if (count - 1 > 0) {
-            game.queue(1000 / 15, () => this.fire(ballArray, count - 1, true));
+            // TODO account for timefactor
+            game.queue(66, () => this.fire(ballArray, count - 1, true));
         } else {
             this.firing = false;
         }

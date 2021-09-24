@@ -47,12 +47,60 @@
         #interface-canvas {
             z-index: 200;
         }
+        
+        #touch-target,
+        #pause-menu {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+            z-index: 500;
+        }
+        
+        #pause-menu {
+            background: rgba(69, 69, 69, 0.2);
+            z-index: 600;
+            backdrop-filter: blur(5px);
+        }
+        
+        #pause-menu * {
+            font-size: larger;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        #resume {
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 70%;
+            min-height: 7%;
+            background-color: green;
+        }
+        
+        #quit {
+            top: 75%;
+            min-height: 5%;
+            width: 50%;
+            background-color: red;
+        }
+        
+        #logo {
+            top: 10%;
+        }
     </style>
 </head>
 
 <body>
     <div id="ball-game">
-        <h1>Ball Game Goes Here</h1>
+        <div id="pause-menu">
+            <img src="./img/logo.png" alt="" id="logo">
+            <button id="resume">Resume</button>
+            <button id="quit">Save & Quit</button>
+        </div>
+        <div id="touch-target"></div>
     </div>
 </body>
 
