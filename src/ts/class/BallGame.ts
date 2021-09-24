@@ -231,7 +231,9 @@ export class BallGame {
 
         this.balls.forEach(b => b.health = 0);
 
-        this.ballGun.forceStop = true;
+        this.actionQueue = [];
+
+        this.ballGun.firing = false;
 
         //TODO rename these vars they're awfullll
         let levelsPerDifficulty = {
@@ -400,13 +402,8 @@ export class BallGame {
         this.actionQueue.push({ trigger, cb, args });
     }
 
-    clearForceStopNextFrame = false;
 
     async loop(t: DOMHighResTimeStamp) {
-        if (this.clearForceStopNextFrame) {
-            this.ballGun.forceStop = false;
-            this.clearForceStopNextFrame = false;
-        }
         // timings
         frameCount++;
         deltaTime = (t - prevFrameTime) / 20;
@@ -420,7 +417,6 @@ export class BallGame {
             // load next level!
             this.level++;
             await this.loadLevel();
-            this.clearForceStopNextFrame = true;
         }
 
         // action queue

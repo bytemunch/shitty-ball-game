@@ -15,8 +15,6 @@ export class BallGun {
 
     firing: boolean;
 
-    forceStop: boolean;
-
     constructor() {
         this.size = 60;
 
@@ -26,8 +24,6 @@ export class BallGun {
 
         this.reloadSpeed = 60;
         this.reloadProgress = 60;
-
-        this.forceStop = false;
     }
 
     setTarget(x, y) {
@@ -58,12 +54,6 @@ export class BallGun {
         this.firing = true;
 
         this.reloadProgress = 0;
-
-        if (this.forceStop) {
-            this.forceStop = false;
-            this.firing = false;
-            return;
-        }
 
         if (game.ballBank.use(1)) {
             ballArray.push(new Ball({

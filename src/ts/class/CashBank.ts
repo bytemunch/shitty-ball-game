@@ -11,7 +11,7 @@ export class CashBank {
         this.pos = new Vector({ x: o.x, y: game.naturalGameBB.interfaceTop + 6 });
         this.width = 48;
         this.height = 48;
-        this.count = 0n;
+        this.count = 1000000000000n;
     }
 
     update() {

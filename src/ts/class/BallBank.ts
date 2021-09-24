@@ -13,7 +13,7 @@ export class BallBank {
         this.width = 48;
         this.height = 48;
         this.magSize = 10;
-        this.count = 200n;
+        this.count = 2000000n;
     }
 
     update() {
