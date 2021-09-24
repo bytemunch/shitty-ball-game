@@ -1,6 +1,9 @@
 import { BallGame } from './class/BallGame.js';
 import { ResizeHandler } from './class/ResizeHandler.js';
 
+
+// TODO make these bois static functions
+
 // Resizing functions
 // NOTE only resize objects on DRAW not on creation
 //  to keep the physics the same across screen sizes
@@ -33,6 +36,32 @@ export const nc = (n:bigint|number) => {
         return `${(n/1000000000000000n)}q`;
     }
     if (n < 1000000000000000000000n) {
+        return `${(n/1000000000000000000n)}x`;
+    }
+}
+
+// number display function
+export const nc2 = (n:bigint|number) => {
+    if (typeof n == "number") n = BigInt(n);
+    if (n < 100000n) {
+        return `${n}`;
+    }
+    if (n < 100000000n) {
+        return `${(n/1000n)}k`;
+    }
+    if (n < 100000000000n) {
+        return `${(n/1000000n)}m`;
+    }
+    if (n < 100000000000000n) {
+        return `${(n/1000000000n)}b`;
+    }
+    if (n < 100000000000000000n) {
+        return `${(n/1000000000000n)}t`;
+    }
+    if (n < 100000000000000000000n) {
+        return `${(n/1000000000000000n)}q`;
+    }
+    if (n < 100000000000000000000000n) {
         return `${(n/1000000000000000000n)}x`;
     }
 }

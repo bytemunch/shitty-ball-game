@@ -1,4 +1,4 @@
-import { game, nc, rs, rs2 } from "../main.js";
+import { game, nc, nc2, rs, rs2 } from "../main.js";
 import { Vector } from "./Vector.js";
 
 export abstract class UpgradePanel {
@@ -70,7 +70,7 @@ export abstract class UpgradePanel {
         ctx.textAlign = 'center';
         ctx.fillStyle = '#FFFFFF';
         ctx.font = `${rs(10)}px Arial`;
-        ctx.fillText('$'+nc(this.cost), rs(this.pos.x + this.width / 2), rs(this.pos.y + this.height * 0.75))
+        ctx.fillText('$'+nc2(this.cost), rs(this.pos.x + this.width / 2), rs(this.pos.y + this.height * 0.75))
     }
 }
 

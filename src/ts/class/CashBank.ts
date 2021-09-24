@@ -1,4 +1,4 @@
-import { game, nc, rs, rs2 } from "../main.js";
+import { game, nc, nc2, rs, rs2 } from "../main.js";
 import { Vector } from "./Vector.js";
 
 export class CashBank {
@@ -54,7 +54,7 @@ export class CashBank {
         ctx.textAlign = 'center';
         ctx.fillStyle = '#FFFFFF';
         ctx.font = `${rs(12)}px Arial`;
-        ctx.fillText('$' + nc(this.count), rs(this.pos.x + this.width / 2), rs(this.pos.y + this.height / 2));
+        ctx.fillText('$' + nc2(this.count), rs(this.pos.x + this.width / 2), rs(this.pos.y + this.height / 2));
     }
 }
 
