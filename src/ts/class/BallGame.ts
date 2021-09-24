@@ -279,7 +279,6 @@ export class BallGame {
                 octx.drawImage(oimg, 0, 0);
                 let imgData = octx.getImageData(0, 0, 10, 10);
 
-                console.log(imgData);
                 // Loading from image
                 for (let i = 0; i < 10; i++) {
                     for (let j = 0; j < 10; j++) {
@@ -335,7 +334,6 @@ export class BallGame {
     }
 
     async advert() {
-        console.log('Do ad here!');
         let countdown = 5;
 
         const adDiv = this.containerDiv.querySelector('#advert') as HTMLDivElement;
@@ -381,8 +379,8 @@ export class BallGame {
         this.damageUpgrade = new DamageUpgrade({ x: 136 })
         this.floorUpgrade = new FloorUpgrade({ x: 190 })
 
-        // load level 1             // begin main loop
-        this.loadLevel().then(() => this.loopHandle = requestAnimationFrame(this.loop.bind(this)));
+        // begin main loop
+        this.loopHandle = requestAnimationFrame(this.loop.bind(this));
     }
 
     get allObjects() {
@@ -402,7 +400,13 @@ export class BallGame {
         this.actionQueue.push({ trigger, cb, args });
     }
 
+    clearForceStopNextFrame = false;
+
     async loop(t: DOMHighResTimeStamp) {
+        if (this.clearForceStopNextFrame) {
+            this.ballGun.forceStop = false;
+            this.clearForceStopNextFrame = false;
+        }
         // timings
         frameCount++;
         deltaTime = (t - prevFrameTime) / 20;
@@ -416,6 +420,7 @@ export class BallGame {
             // load next level!
             this.level++;
             await this.loadLevel();
+            this.clearForceStopNextFrame = true;
         }
 
         // action queue
