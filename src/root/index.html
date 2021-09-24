@@ -19,6 +19,7 @@
             height: 100vh;
             position: absolute;
             background: url('./img/wall.png');
+            font-family: Arial, Helvetica, sans-serif;
         }
         
         #ball-game {
@@ -48,6 +49,7 @@
             z-index: 200;
         }
         
+        #advert,
         #touch-target,
         #pause-menu {
             position: absolute;
@@ -59,10 +61,34 @@
             z-index: 500;
         }
         
+        #advert,
         #pause-menu {
             background: rgba(69, 69, 69, 0.2);
             z-index: 600;
             backdrop-filter: blur(5px);
+        }
+        
+        #advert {
+            background: rgba(69, 69, 69, 0.4);
+            display: none;
+            color: white;
+            padding: 10%;
+        }
+        
+        #advert * {
+            text-align: center;
+        }
+        
+        #advert p {
+            text-align: left;
+            font-size: large;
+        }
+        
+        #advert a {
+            display: block;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
         }
         
         #pause-menu * {
@@ -99,6 +125,14 @@
             <img src="./img/logo.png" alt="" id="logo">
             <button id="resume">Resume</button>
             <button id="quit">Save & Quit</button>
+        </div>
+        <div id="advert">
+            <h2>Out of balls!</h2>
+            <h3>But don't worry, you'll have 100 more after this quick ad.</h3>
+            <p id='countdown'>Skipping in 5...</p>
+            <a href="https://www.effectivecpmgate.com/x2uabykf?key=e79be3ae08606befebfff5f871c7fa5f">
+                <img src="./img/ad.png" alt="">
+            </a>
         </div>
         <div id="touch-target"></div>
     </div>

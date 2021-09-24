@@ -1,6 +1,7 @@
 import { game, rs } from "../main.js";
 import { timestep } from "./BallGame.js";
 import { Block } from "./Block.js";
+import { Floor } from "./Floor.js";
 import { Particle } from "./Particle.js";
 import { Vector } from "./Vector.js";
 import { Wall } from "./Wall.js";
@@ -74,11 +75,16 @@ export class Ball {
 
             // TODO prioritize which bounce to use based on velocity angle compared to collision side
             // OR figure if the block is colliding with the other block we collided with and decide w that
-            if (o.constructor.name == 'Block') {
+            if (o.constructor.name == 'Block' || o.constructor.name == 'Floor') {
                 let b = o as Block;
                 const negateHealth = () => {
-                    b.health -= game.upgrades.ballDamage;
-                    this.health--;
+                    if (b.constructor.name == 'Floor') {
+                        b.health -= 1n;
+                    } else {
+                        b.health -= game.upgrades.ballDamage;
+                        this.health--;
+                    }
+                    this.emitParticles(10);
                 }
                 if (leftCollide && b.collisionSides.left) {
                     this.vel.x *= -1;
@@ -105,24 +111,20 @@ export class Ball {
                 if (topCollide || bottomCollide) this.vel.y *= -1;
 
                 this.health--;
+                this.emitParticles(10);
+
             }
 
-            // this.health--;
-
-            // Add particles
-            for (let i = 0; i < 10; i++) {
-                game.particles.push(new Particle({ x: this.pos.x, y: this.pos.y }));
-            }
-
-            if (this.health <= 0) {
-                // add more particles for death
-                for (let i = 0; i < 10; i++) {
-                    game.particles.push(new Particle({ x: this.pos.x, y: this.pos.y }));
-                }
-            }
+            if (this.health <= 0) this.emitParticles(10);
             return true;
 
             // console.log(`collision! R:${rightCollide} L:${leftCollide} T:${topCollide} B:${bottomCollide}`);
+        }
+    }
+
+    emitParticles(count) {
+        for (let i = 0; i < count; i++) {
+            game.particles.push(new Particle({ x: this.pos.x, y: this.pos.y }));
         }
     }
 

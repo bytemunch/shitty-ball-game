@@ -7,7 +7,9 @@ import { BallBank } from "./BallBank.js";
 import { CashBank } from "./CashBank.js";
 import { BounceUpgrade } from "./BounceUpgrade.js";
 import { DamageUpgrade } from "./DamageUpgrade.js";
+import { FloorUpgrade } from "./FloorUpgrade.js";
 import { Particle } from "./Particle.js";
+import { Floor } from "./Floor.js";
 
 export const lowerGameBound = 500;
 
@@ -55,6 +57,7 @@ export class BallGame {
     loopHandle;
     bounceUpgrade: BounceUpgrade;
     damageUpgrade: DamageUpgrade;
+    floorUpgrade: FloorUpgrade;
     timeFactor: number;
 
     constructor() {
@@ -75,7 +78,8 @@ export class BallGame {
         this.upgrades = {
             cashDropped: 1,
             ballDamage: 1n,
-            bounces: 2
+            bounces: 2,
+            floorHealth: 10n
         }
 
         // Grab DOM
@@ -180,8 +184,11 @@ export class BallGame {
 
         this.touchTarget.addEventListener('mousedown', e => {
             e.preventDefault();
-            if (e.offsetX < this.naturalGameBB.interfaceTop) {
-                // ingame click
+            const x = e.offsetX;
+            const y = e.offsetY;
+
+            if (rs2(y) < this.naturalGameBB.interfaceTop) {
+                // ingame touch
                 const moveFn = e => {
                     e.preventDefault();
 
@@ -204,6 +211,9 @@ export class BallGame {
                 this.touchTarget.addEventListener('mouseup', upFn);
             } else {
                 // interfaces
+                for (let i of this.interfaceObjects) {
+                    if (i.pointCollides && i.pointCollides(x, y)) i.click();
+                }
             }
         })
 
@@ -217,23 +227,46 @@ export class BallGame {
 
     async loadLevel() {
         // add balls in play back to bank
-        this.ballBank.add(this.balls.length);
+        // this.ballBank.add(this.balls.length);
 
         this.balls.forEach(b => b.health = 0);
 
         this.ballGun.forceStop = true;
 
+        //TODO rename these vars they're awfullll
         let levelsPerDifficulty = {
+            easy: 3,
+            medium: 2,
+            hard: 1,
+            bonus: 1
+        }
+
+        let levelsInDifficulty = {
             easy: 2,
             medium: 2,
             hard: 1,
             bonus: 1
         }
 
-        let difficulty = 'bonus';
+        let levelRotation = levelsPerDifficulty.easy + levelsPerDifficulty.medium + levelsPerDifficulty.hard + levelsPerDifficulty.bonus;
 
-        let lvl = Math.floor(1 + Math.random() * levelsPerDifficulty[difficulty]);
-        let scaling = Math.ceil(this.level / 5) || 1;
+        let rotationProgress = this.level % levelRotation;
+        let difficulty = 'easy';
+
+        if (rotationProgress >= levelsPerDifficulty.easy) {
+            difficulty = 'medium';
+        }
+
+        if (rotationProgress >= levelsPerDifficulty.easy + levelsPerDifficulty.medium) {
+            difficulty = 'hard';
+        }
+
+        if (rotationProgress >= levelsPerDifficulty.easy + levelsPerDifficulty.medium + levelsPerDifficulty.hard) {
+            difficulty = 'bonus';
+        }
+
+        let lvl = Math.floor(1 + Math.random() * levelsInDifficulty[difficulty]);
+        let scaling = Math.ceil(this.level / levelRotation) || 1;
 
         let levelLoaded = new Promise(res => {
             // pull test level from image
@@ -263,6 +296,7 @@ export class BallGame {
             oimg.src = `./levels/${difficulty}/${lvl}.png`;
         })
 
+        this.blocks.push(new Floor());
 
         return levelLoaded;
     }
@@ -300,6 +334,30 @@ export class BallGame {
         increaseTimeFactor();
     }
 
+    async advert() {
+        console.log('Do ad here!');
+        let countdown = 5;
+
+        const adDiv = this.containerDiv.querySelector('#advert') as HTMLDivElement;
+        const adTxt = adDiv.querySelector('#countdown') as HTMLParagraphElement;
+
+        // TODO load ad here...
+
+        adDiv.style.display = 'block';
+
+        let adProm = new Promise((res) => {
+            let ivl = setInterval(() => { countdown--; adTxt.textContent = `Skipping in ${countdown}...`; if (countdown <= 0) { clearInterval(ivl); res(1) } }, 1000);
+        });
+
+        await adProm;
+
+        adDiv.style.display = 'none';
+
+        adTxt.textContent = `Skipping in 5...`;
+
+        return;
+    }
+
     onResize() {
         this.containerBB = this.containerDiv.getBoundingClientRect();
 
@@ -319,8 +377,9 @@ export class BallGame {
         // add interfaces
         this.ballBank = new BallBank({ x: 256 });
         this.cashBank = new CashBank({ x: 16 });
-        this.bounceUpgrade = new BounceUpgrade({ x: 70 })
-        this.damageUpgrade = new DamageUpgrade({ x: 124 })
+        this.bounceUpgrade = new BounceUpgrade({ x: 82 })
+        this.damageUpgrade = new DamageUpgrade({ x: 136 })
+        this.floorUpgrade = new FloorUpgrade({ x: 190 })
 
         // load level 1             // begin main loop
         this.loadLevel().then(() => this.loopHandle = requestAnimationFrame(this.loop.bind(this)));
@@ -331,7 +390,7 @@ export class BallGame {
     }
 
     get interfaceObjects() {
-        return [this.ballBank, this.cashBank, this.bounceUpgrade, this.damageUpgrade, ...this.interfaces];
+        return [this.ballBank, this.cashBank, this.bounceUpgrade, this.damageUpgrade, this.floorUpgrade, ...this.interfaces];
     }
 
     get gameObjects() {
@@ -349,6 +408,9 @@ export class BallGame {
         deltaTime = (t - prevFrameTime) / 20;
         timestep = deltaTime * this.timeFactor;
         prevFrameTime = t;
+
+        // If only block left is floor
+        if (this.blocks.length == 1 && this.blocks[0].constructor.name == 'Floor') this.blocks = [];
 
         if (this.blocks.length == 0) {
             // load next level!

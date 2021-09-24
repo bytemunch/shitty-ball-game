@@ -47,11 +47,11 @@ export class Block {
     }
 
     get cx() {
-        return this.pos.x + this.width/2;
+        return this.pos.x + this.width / 2;
     }
-    
+
     get cy() {
-        return this.pos.y + this.height/2;
+        return this.pos.y + this.height / 2;
     }
 
     collides(b: Block) {
@@ -80,11 +80,13 @@ export class Block {
 
     die() {
         if (this.value == 0n) return;
-        let ballDrop = 5n + this.value/4n;
+        let ballDrop = 5n + this.value / 4n;
         game.ballBank.add(ballDrop);
-        game.interfaces.push(new BallDrop(this.pos.x + this.width/2, this.pos.y+this.height/2, ballDrop));
-        game.cashBank.add(this.value*10n);
-        game.interfaces.push(new CashDrop(this.pos.x + this.width/2, this.pos.y+this.height, this.value*10n));
+        game.interfaces.push(new BallDrop(this.pos.x + this.width / 2, this.pos.y + this.height / 2, ballDrop));
+
+        let cashDrop = (this.value * 10n) / 2n;
+        game.cashBank.add(cashDrop);
+        game.interfaces.push(new CashDrop(this.pos.x + this.width / 2, this.pos.y + this.height, cashDrop));
 
         for (let i = 0; i < this.width; i++) {
             game.particles.push(new Particle({ x: this.cx, y: this.cy }));

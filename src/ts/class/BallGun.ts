@@ -53,6 +53,7 @@ export class BallGun {
 
     fire(ballArray, count?, inMagazine?) {
         if (!this.reloaded && !inMagazine) return;
+        if (count <= 0) return;
 
         this.firing = true;
 

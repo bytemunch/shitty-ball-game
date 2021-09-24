@@ -1,4 +1,4 @@
-import { game, nc, rs, rs2 } from "../main.js";
+import { game, nc, nc2, rs, rs2 } from "../main.js";
 import { Vector } from "./Vector.js";
 
 export class BallBank {
@@ -12,12 +12,12 @@ export class BallBank {
         this.pos = new Vector({ x: o.x, y: game.naturalGameBB.interfaceTop + 6 });
         this.width = 48;
         this.height = 48;
-        this.magSize = 1;
-        this.count = 10000n;
+        this.magSize = 10;
+        this.count = 200n;
     }
 
     update() {
-        // nada to do here
+
     }
 
     pointCollides(x, y) {
@@ -30,9 +30,7 @@ export class BallBank {
 
     click() {
         switch (this.magSize) {
-            case 1:
-                this.magSize = 10;
-                break;
+
             case 10:
                 this.magSize = 25;
                 break;
@@ -43,10 +41,15 @@ export class BallBank {
                 this.magSize = 100;
                 break;
             case 100:
-                this.magSize = 1;
+                this.magSize = 10;
+                break;
+            default:
+                this.magSize = 10;
                 break;
         }
-        if (this.count < this.magSize) this.magSize = 1;
+        if (this.count < 10) this.magSize = Number(this.count);
+        if (this.count < this.magSize) this.magSize = 10;
+        if (this.magSize <= 0) this.magSize = 1;
     }
 
     setMaxMagSize() {
@@ -72,15 +75,17 @@ export class BallBank {
     }
 
     use(amt: number) {
+        if (this.count <= 0) {
+            game.advert().then(() => this.count = 100n);
+            this.magSize = 10;
+            return false;
+        }
+
         this.count = this.count - BigInt(amt);
-        // this.setMaxMagSize();
 
         if (this.count < this.magSize) this.click();
 
-        if (this.count <= 0) {
-            this.count = 0n;
-            return false;
-        }
+
         return true;
     }
 
@@ -102,7 +107,7 @@ export class BallBank {
         ctx.textAlign = 'center';
         ctx.fillStyle = '#FFFFFF';
         ctx.font = `${rs(10)}px Arial`;
-        ctx.fillText(nc(this.count), rs(this.pos.x + this.width / 2), rs(this.pos.y + this.height * 0.75))
+        ctx.fillText(nc2(this.count), rs(this.pos.x + this.width / 2), rs(this.pos.y + this.height * 0.75))
     }
 }
 
