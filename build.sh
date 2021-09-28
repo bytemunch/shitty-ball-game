@@ -10,7 +10,7 @@ echo "Compiling TS..."
 tsc
 
 echo "Copy level PNGs..."
-rsync -a /mnt/c/Users/samed/Desktop/Projects/ball-game/levels/easy/*.png ./src/root/levels/easy/
+rsync -a ./aseprite/levels/easy/*.png ./src/root/levels/easy/
 echo "Rename easy levels..."
 
 COUNTER=0
@@ -23,7 +23,7 @@ done
 
 cd ../../../../
 
-rsync -a /mnt/c/Users/samed/Desktop/Projects/ball-game/levels/medium/*.png ./src/root/levels/medium/
+rsync -a ./aseprite/levels/medium/*.png ./src/root/levels/medium/
 
 echo "Rename medium levels..."
 
@@ -37,7 +37,7 @@ done
 
 cd ../../../../
 
-rsync -a /mnt/c/Users/samed/Desktop/Projects/ball-game/levels/hard/*.png ./src/root/levels/hard/
+rsync -a ./aseprite/levels/hard/*.png ./src/root/levels/hard/
 
 echo "Rename hard levels..."
 
@@ -51,7 +51,7 @@ done
 
 cd ../../../../
 
-rsync -a /mnt/c/Users/samed/Desktop/Projects/ball-game/levels/bonus/*.png ./src/root/levels/bonus/
+rsync -a ./aseprite/levels/bonus/*.png ./src/root/levels/bonus/
 
 echo "Rename bonus levels..."
 
