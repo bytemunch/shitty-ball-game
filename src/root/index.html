@@ -49,34 +49,37 @@
             z-index: 200;
         }
         
-        #advert,
-        #touch-target,
-        #pause-menu {
+        .fullscreen {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             display: block;
-            z-index: 500;
-        }
-        
-        #advert,
-        #pause-menu {
-            background: rgba(69, 69, 69, 0.2);
             z-index: 600;
             backdrop-filter: blur(5px);
-        }
-        
-        #advert {
             background: rgba(69, 69, 69, 0.4);
-            display: none;
             color: white;
             padding: 10%;
         }
         
-        #advert * {
+        .fullscreen * {
             text-align: center;
+            font-size: larger;
+            display: block;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        #touch-target {
+            z-index: 500;
+            backdrop-filter: none;
+            background: none;
+        }
+        
+        #advert {
+            display: none;
         }
         
         #advert p {
@@ -84,21 +87,11 @@
             font-size: large;
         }
         
-        #advert a {
-            display: block;
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
+        #pause-menu {
+            display: none;
         }
         
-        #pause-menu * {
-            font-size: larger;
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-        
-        #resume {
+        .fs-btn-1 {
             top: 50%;
             transform: translate(-50%, -50%);
             width: 70%;
@@ -106,14 +99,21 @@
             background-color: green;
         }
         
-        #quit {
+        .fs-btn-2 {
             top: 75%;
             min-height: 5%;
             width: 50%;
             background-color: red;
         }
         
-        #logo {
+        .fs-btn-3 {
+            top: 85%;
+            min-height: 5%;
+            width: 50%;
+            background-color: red;
+        }
+        
+        .logo {
             top: 10%;
         }
     </style>
@@ -121,12 +121,17 @@
 
 <body>
     <div id="ball-game">
-        <div id="pause-menu">
-            <img src="img/logo.png" alt="" id="logo">
-            <button id="resume">Resume</button>
-            <button id="quit">Save & Quit</button>
+        <div id="splash" class="fullscreen">
+            <img src="img/logo.png" alt="" class="logo">
+            <button id="play" class="fs-btn-1">Play</button>
+            <button id="clear-data" class="fs-btn-3">Clear Data</button>
         </div>
-        <div id="advert">
+        <div id="pause-menu" class="fullscreen">
+            <img src="img/logo.png" alt="" class="logo">
+            <button id="resume" class="fs-btn-1">Resume</button>
+            <button id="save-quit" class="fs-btn-2">Save & Quit</button>
+        </div>
+        <div id="advert" class="fullscreen">
             <h2>Out of balls!</h2>
             <h3>But don't worry, you'll have 100 more after this quick ad.</h3>
             <p id='countdown'>Skipping in 5...</p>
@@ -134,7 +139,7 @@
                 <img src="img/ad.png" alt="">
             </a>
         </div>
-        <div id="touch-target"></div>
+        <div id="touch-target" class="fullscreen"></div>
     </div>
 </body>
 

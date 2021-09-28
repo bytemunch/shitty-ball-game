@@ -42,7 +42,7 @@ export abstract class UpgradePanel {
         return (this.cost <= game.cashBank.count)
     }
 
-    get currentLevel() {
+    get currentLevel():number|bigint {
         console.log('level retrieve not implemented!')
         return 0;
     }

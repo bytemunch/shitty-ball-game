@@ -13,7 +13,7 @@ export class BallBank {
         this.width = 48;
         this.height = 48;
         this.magSize = 10;
-        this.count = 2000000n;
+        this.count = 200n;
     }
 
     update() {
@@ -84,7 +84,6 @@ export class BallBank {
         this.count = this.count - BigInt(amt);
 
         if (this.count < this.magSize) this.click();
-
 
         return true;
     }
