@@ -21,7 +21,7 @@ export let timestep = 0;
 
 export let frameCount = 0;
 
-export let audioMgr: AudioManager;
+export const audioMgr = new AudioManager;;
 
 // TODO very bad prototype pollution!!!!
 //@ts-ignore
@@ -236,6 +236,7 @@ export class BallGame {
         this.pauseMenu.querySelector('#save-quit').addEventListener('click', this.btnSaveQuit.bind(this));
         this.splashScreen.querySelector('#play').addEventListener('click', this.startGame.bind(this));
         this.splashScreen.querySelector('#clear-data').addEventListener('click', this.btnClearData.bind(this));
+        this.containerDiv.querySelectorAll('.audio-toggle').forEach(e=>e.addEventListener('click', this.btnToggleAudio.bind(this)));
     }
 
     postInit() {
@@ -415,6 +416,16 @@ export class BallGame {
         }
     }
 
+    btnToggleAudio() {
+        if (audioMgr.muted) {
+            document.querySelectorAll('.audio-toggle').forEach(e=>e.classList.remove('disabled'));
+            audioMgr.muted = false;
+        } else {
+            document.querySelectorAll('.audio-toggle').forEach(e=>e.classList.add('disabled'));
+            audioMgr.muted = true;
+        }
+    }
+
     btnClearData() {
         audioMgr.play('click');
 
@@ -433,7 +444,6 @@ export class BallGame {
 
     async startGame() {
         this.splashScreen.style.display = 'none';
-        audioMgr = new AudioManager;
         await audioMgr.init();
         this.unpause();
     }

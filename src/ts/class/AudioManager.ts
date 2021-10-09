@@ -2,15 +2,22 @@ export class AudioManager {
     actx: AudioContext;
     buffers: { [bufferID: string]: AudioBuffer };
 
+    muted: boolean;
+
     constructor() {
         this.actx = new AudioContext;
 
         this.actx.resume();
 
+        this.muted = false;
+
         this.buffers = {};
     }
 
     async init() {
+
+        this.actx.resume();
+
         this.buffers['noise'] = new AudioBuffer({
             length: this.actx.sampleRate / 2,
             sampleRate: this.actx.sampleRate
@@ -38,6 +45,7 @@ export class AudioManager {
     }
 
     play(soundID: string) {
+        if (this.muted) return;
         const source = this.actx.createBufferSource();
         source.buffer = this.buffers[soundID];
         source.connect(this.actx.destination);

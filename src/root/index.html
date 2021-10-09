@@ -116,6 +116,22 @@
         .logo {
             top: 10%;
         }
+        
+        .audio-toggle {
+            background-color: green;
+            background-image: url('img/audio.png');
+            background-size: contain;
+            width: 48px;
+            height: 48px;
+            position: absolute;
+            top: 85%;
+            left: 85%;
+        }
+        
+        .audio-toggle.disabled {
+            background-color: red;
+            background-image: url('img/no-audio.png');
+        }
     </style>
 </head>
 
@@ -125,11 +141,13 @@
             <img src="img/logo.png" alt="" class="logo">
             <button id="play" class="fs-btn-1">Play</button>
             <button id="clear-data" class="fs-btn-3">Clear Data</button>
+            <button class="audio-toggle"></button>
         </div>
         <div id="pause-menu" class="fullscreen">
             <img src="img/logo.png" alt="" class="logo">
             <button id="resume" class="fs-btn-1">Resume</button>
             <button id="save-quit" class="fs-btn-2">Save & Quit</button>
+            <button class="audio-toggle"></button>
         </div>
         <div id="advert" class="fullscreen">
             <h2>Out of balls!</h2>
