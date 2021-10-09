@@ -1,4 +1,5 @@
 import { game, nc, nc2, rs, rs2 } from "../main.js";
+import { audioMgr } from "./BallGame.js";
 import { Vector } from "./Vector.js";
 
 export class BallBank {
@@ -28,7 +29,9 @@ export class BallBank {
             y > this.pos.y && y < this.pos.y + this.height);
     }
 
-    click() {
+    click(auto:boolean) {
+        if (!auto) audioMgr.play('click');
+
         switch (this.magSize) {
 
             case 10:
@@ -83,7 +86,7 @@ export class BallBank {
 
         this.count = this.count - BigInt(amt);
 
-        if (this.count < this.magSize) this.click();
+        if (this.count < this.magSize) this.click(true);
 
         return true;
     }
