@@ -1,4 +1,5 @@
 import { game, nc, nc2, rs, rs2 } from "../main.js";
+import { audioMgr } from "./BallGame.js";
 import { Vector } from "./Vector.js";
 
 export class CashBank {
@@ -11,7 +12,7 @@ export class CashBank {
         this.pos = new Vector({ x: o.x, y: game.naturalGameBB.interfaceTop + 6 });
         this.width = 48;
         this.height = 48;
-        this.count = 1000000000000n;
+        this.count = 0n;
     }
 
     update() {
@@ -33,9 +34,11 @@ export class CashBank {
     use(amt: number | bigint) {
         if (typeof amt == 'number') amt = BigInt(Math.floor(amt));
 
-        if (this.count - amt < 0) return false;
+        if (this.count - amt < 0) {audioMgr.play('nope');return false;}
 
         this.count = this.count - amt;
+
+        audioMgr.play('coin');
 
         return true;
     }

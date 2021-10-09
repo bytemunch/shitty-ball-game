@@ -1,5 +1,5 @@
 import { game, rs } from "../main.js";
-import { timestep } from "./BallGame.js";
+import { audioMgr, timestep } from "./BallGame.js";
 import { Block } from "./Block.js";
 import { Floor } from "./Floor.js";
 import { Particle } from "./Particle.js";
@@ -75,6 +75,8 @@ export class Ball {
 
             // TODO prioritize which bounce to use based on velocity angle compared to collision side
             // OR figure if the block is colliding with the other block we collided with and decide w that
+
+            // TODO DRY Refac
             if (o.constructor.name == 'Block' || o.constructor.name == 'Floor') {
                 let b = o as Block;
                 const negateHealth = () => {
@@ -84,6 +86,7 @@ export class Ball {
                         b.health -= game.upgrades.ballDamage;
                         this.health--;
                     }
+                    audioMgr.play((this.health > 0) ? 'bounce' : 'explosion2');
                     this.emitParticles(10);
                 }
                 if (leftCollide && b.collisionSides.left) {
@@ -113,6 +116,7 @@ export class Ball {
                 this.health--;
                 this.emitParticles(10);
 
+                audioMgr.play((this.health > 0) ? 'bounce' : 'explosion2');
             }
 
             if (this.health <= 0) this.emitParticles(10);

@@ -3,6 +3,7 @@ import { Vector } from "./Vector.js";
 import { CashDrop } from "./CashDrop.js";
 import { BallDrop } from "./BallDrop.js";
 import { Particle } from "./Particle.js";
+import { audioMgr } from "./BallGame.js";
 
 export class Block {
     pos: Vector;
@@ -91,6 +92,8 @@ export class Block {
         for (let i = 0; i < this.width; i++) {
             game.particles.push(new Particle({ x: this.cx, y: this.cy }));
         }
+
+        audioMgr.play('explosion');
     }
 
     draw(ctx: CanvasRenderingContext2D) {

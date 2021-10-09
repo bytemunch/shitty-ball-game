@@ -1,6 +1,6 @@
 import { game, rs, rs2 } from "../main.js";
 import { Ball } from "./Ball.js";
-import { lowerGameBound } from "./BallGame.js";
+import { audioMgr, lowerGameBound } from "./BallGame.js";
 import { Vector } from "./Vector.js";
 
 export class BallGun {
@@ -61,6 +61,9 @@ export class BallGun {
                 y: this.pos.y + this.target.y,
                 a: this.fireAngle
             }));
+
+            // play firing sound
+            audioMgr.play('fire');
         } else {
             // couldn't fire!
             this.firing = false;

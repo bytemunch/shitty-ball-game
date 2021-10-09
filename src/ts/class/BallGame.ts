@@ -11,6 +11,8 @@ import { FloorUpgrade } from "./FloorUpgrade.js";
 import { Particle } from "./Particle.js";
 import { Floor } from "./Floor.js";
 
+import { AudioManager } from "./AudioManager.js";
+
 export const lowerGameBound = 500;
 
 let deltaTime = 0;
@@ -18,6 +20,8 @@ export let prevFrameTime = 0;
 export let timestep = 0;
 
 export let frameCount = 0;
+
+export let audioMgr: AudioManager;
 
 // TODO very bad prototype pollution!!!!
 //@ts-ignore
@@ -334,6 +338,7 @@ export class BallGame {
 
         await levelLoaded;
         this.loading = false;
+        audioMgr.play('level');
         return;
     }
 
@@ -411,23 +416,31 @@ export class BallGame {
     }
 
     btnClearData() {
+        audioMgr.play('click');
+
         this.clearData();
         console.log('data cleared!');
     }
 
     btnSaveQuit() {
+        audioMgr.play('click');
+
         this.saveData();
         console.log('saved, now quit.');
         this.splashScreen.style.display = 'block';
         this.pauseMenu.style.display = 'none';
     }
 
-    startGame() {
+    async startGame() {
         this.splashScreen.style.display = 'none';
+        audioMgr = new AudioManager;
+        await audioMgr.init();
         this.unpause();
     }
 
     pause() {
+        audioMgr.play('click');
+
         for (let fn of this.actionQueue) {
             fn.trigger += 10000000000;
         }
@@ -444,6 +457,8 @@ export class BallGame {
     }
 
     unpause() {
+        audioMgr.play('click');
+
         // TODO fadeout pause menu
         this.pauseMenu.style.display = 'none';
 
@@ -469,6 +484,8 @@ export class BallGame {
         // TODO load ad here...
 
         adDiv.style.display = 'block';
+
+        audioMgr.play('lose');
 
         let adProm = new Promise((res) => {
             let ivl = setInterval(() => { countdown--; adTxt.textContent = `Skipping in ${countdown}...`; if (countdown <= 0) { clearInterval(ivl); res(1) } }, 1000);
