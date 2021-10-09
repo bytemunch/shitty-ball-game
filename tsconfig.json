@@ -1,5 +1,4 @@
 {
-    "compileOnSave": true,
     "compilerOptions": {
         "module": "ES6",
         "target": "ESNext",
@@ -13,12 +12,5 @@
     },
     "include": [
         "./src/ts/main.ts"
-    ],
-    "exclude": [
-        "node_modules",
-        "**/*.spec.ts"
-    ],
-    "types": [
-        "firebase"
     ]
 }
