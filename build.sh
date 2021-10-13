@@ -9,9 +9,12 @@ rm -rf ./src/root/levels/**/*
 echo "Compiling TS..."
 tsc
 
+# TODO DRY this up
+
 echo "Copy level PNGs..."
 rsync -a ./aseprite/levels/easy/*.png ./src/root/levels/easy/
 echo "Rename easy levels..."
+
 
 COUNTER=0
 cd ./src/root/levels/easy/
